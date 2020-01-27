@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/galleryBackground"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/gallery_image_view"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:contentDescription="@string/thumbnail"
+        app:layout_constraintBottom_toTopOf="@id/gallery_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/gallery_title"
+        style="@style/TextAppearance.AppCompat.SearchResult.Title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:paddingBottom="8dp"
+        android:textAlignment="textStart"
+        android:textColor="@android:color/white"
+        app:layout_constraintLeft_toRightOf="@id/gallery_image_view"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@id/gallery_image_view"
+        tools:text="Sample Gallery Title" />
+
+    <TextView
+        android:id="@+id/gallery_count"
+        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAlignment="textStart"
+        android:paddingBottom="4dp"
+        android:textColor="@android:color/white"
+        app:layout_constraintLeft_toLeftOf="@id/gallery_title"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gallery_title"
+        tools:text="4 Images" />
+
+    <TextView
+        android:id="@+id/gallery_date"
+        style="@style/TextAppearance.AppCompat.Caption"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAlignment="textStart"
+        android:textColor="@android:color/white"
+        app:layout_constraintLeft_toLeftOf="@id/gallery_count"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/gallery_count"
+        tools:text="21/12/20202" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
