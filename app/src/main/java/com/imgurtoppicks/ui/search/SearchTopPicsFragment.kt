@@ -14,7 +14,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.imgurtoppicks.R
 import com.imgurtoppicks.di.injector
 import com.imgurtoppicks.ui.visibleOrGone
-import com.jakewharton.rxbinding3.view.clicks
 import com.jakewharton.rxbinding3.widget.checkedChanges
 import com.jakewharton.rxbinding3.widget.queryTextChanges
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -23,6 +22,7 @@ import kotlinx.android.synthetic.main.search_top_pics_fragment.*
 class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
 
     companion object {
+        const val QUERY = "QUERY"
         fun newInstance() = SearchTopPicsFragment()
     }
 
@@ -31,12 +31,12 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
     private lateinit var searchView: SearchView
     private lateinit var recyclerView: RecyclerView
 
+    private var query: String = ""
+
     // Must only be accessed once activity created
     private val viewModel: SearchTopPicsViewModel by lazy {
-        ViewModelProvider(
-            this,
-            activity!!.injector.viewModelFactory()
-        ).get(SearchTopPicsViewModel::class.java)
+        ViewModelProvider(this, activity!!.injector.viewModelFactory())
+            .get(SearchTopPicsViewModel::class.java)
     }
 
     override fun onCreateView(
@@ -76,13 +76,18 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.search_menu, menu)
-        searchView = menu.findItem(R.id.search_item).actionView as SearchView
+        val searchItem = menu.findItem(R.id.search_item)
+        searchView = searchItem.actionView as SearchView
+        if (query.isNotEmpty()) {
+            searchItem.expandActionView()
+            searchView.setQuery(query, false)
+            searchView.clearFocus()
+        }
         viewModel.observeSearchQueryChanges(searchView.queryTextChanges().skipInitialValue())
         super.onCreateOptionsMenu(menu, inflater)
     }
 
     override fun displayResults(results: List<SearchGalleryListItem>) {
-        Log.d("Display", results.toString())
         adapter.refreshItems(results)
     }
 
@@ -100,5 +105,15 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
 
     override fun displayError(error: Throwable) {
         Snackbar.make(container_layout, R.string.error, Snackbar.LENGTH_LONG).show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(QUERY, searchView.query.toString())
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        query = savedInstanceState?.getString(QUERY) ?: ""
     }
 }

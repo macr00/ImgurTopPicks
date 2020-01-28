@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">ImgurTopPicks</string>
     <string name="thumbnail">Gallery Thumbnail</string>
+    <string name="search">Search</string>
     <string name="begin_search">Search for the top Imgur pics of the week!</string>
     <string name="no_results">No Results!\nPlease try another search.</string>
     <string name="searching">Searching…</string>
