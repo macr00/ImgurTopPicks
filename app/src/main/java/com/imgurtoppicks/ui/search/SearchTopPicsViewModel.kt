@@ -82,8 +82,6 @@ class SearchTopPicsViewModel
             .subscribe(togglePublisher)
     }
 
-    fun clearedObservable(): Observable<Unit>  = destroyed.hide()
-
     override fun onCleared() {
         destroyed.onNext(Unit)
         super.onCleared()

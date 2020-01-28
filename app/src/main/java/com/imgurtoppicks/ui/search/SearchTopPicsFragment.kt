@@ -70,9 +70,9 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
     @SuppressLint("CheckResult")
     override fun onStart() {
         super.onStart()
+        Log.d("Lifecycle", "OnStart")
         viewModel.observeToggleChanges(toggle.checkedChanges())
         viewModel.viewStateObservable()
-            .doOnEach { Log.d("Fragment", it.toString()) }
             .takeUntil(createOnStopObservable())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ state ->
@@ -142,6 +142,7 @@ fun Fragment.createOnStopObservable(): Observable<Unit> {
         lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun emitLifeCycleStopped() {
+                Log.d("Lifecycle", "OnStop")
                 if (!emitter.isDisposed) {
                     emitter.onNext(Unit)
                     emitter.onComplete()
