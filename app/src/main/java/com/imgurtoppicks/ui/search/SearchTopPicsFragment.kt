@@ -7,6 +7,10 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.SearchView
 import android.widget.ToggleButton
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +20,7 @@ import com.imgurtoppicks.di.injector
 import com.imgurtoppicks.ui.visibleOrGone
 import com.jakewharton.rxbinding3.widget.checkedChanges
 import com.jakewharton.rxbinding3.widget.queryTextChanges
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.search_top_pics_fragment.*
 
@@ -57,14 +62,18 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
         }
     }
 
-    @SuppressLint("CheckResult")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    @SuppressLint("CheckResult")
+    override fun onStart() {
+        super.onStart()
         viewModel.observeToggleChanges(toggle.checkedChanges())
         viewModel.viewStateObservable()
             .doOnEach { Log.d("Fragment", it.toString()) }
-            .takeUntil(viewModel.clearedObservable())
+            .takeUntil(createOnStopObservable())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ state ->
                 state.renderWith(this)
@@ -104,7 +113,12 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
     }
 
     override fun displayError(error: Throwable) {
-        Snackbar.make(container_layout, R.string.error, Snackbar.LENGTH_LONG).show()
+        activity?.let {
+            Snackbar.make(container_layout, R.string.error, Snackbar.LENGTH_LONG).apply {
+                setTextColor(ContextCompat.getColor(it, R.color.colorAccent))
+                show()
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -115,5 +129,24 @@ class SearchTopPicsFragment : Fragment(), SearchTopPicsView {
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         query = savedInstanceState?.getString(QUERY) ?: ""
+    }
+}
+
+fun Fragment.createOnStopObservable(): Observable<Unit> {
+    return Observable.create { emitter ->
+        if (lifecycle.currentState == Lifecycle.State.DESTROYED) {
+            emitter.onNext(Unit)
+            emitter.onComplete()
+            return@create
+        }
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun emitLifeCycleStopped() {
+                if (!emitter.isDisposed) {
+                    emitter.onNext(Unit)
+                    emitter.onComplete()
+                }
+            }
+        })
     }
 }
